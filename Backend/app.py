@@ -19,7 +19,7 @@ except ImportError:
     def load_dotenv():
         pass
 
-from .services.cloudinary_service import (
+from services.cloudinary_service import (
     init_cloudinary,
     upload_media_file,
     delete_media_file,

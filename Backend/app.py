@@ -12,6 +12,8 @@ from flask import (
 )
 
 from functools import wraps
+import importlib.util
+import os
 
 try:
     from dotenv import load_dotenv
@@ -19,12 +21,56 @@ except ImportError:
     def load_dotenv():
         pass
 
-from services.cloudinary_service import (
-    init_cloudinary,
-    upload_media_file,
-    delete_media_file,
-    get_media_resources
-)
+# Define fallback implementations
+def init_cloudinary():
+    pass
+
+def upload_media_file(file, user, tag):
+    return {"error": "Media service unavailable"}
+
+def delete_media_file(public_id, resource_type="image"):
+    return {"error": "Media service unavailable"}
+
+def get_media_resources(user):
+    return {"resources": []}
+
+# Try to import from services
+try:
+    service_path = os.path.join(
+        os.path.dirname(__file__),
+        "services",
+        "cloudinary_service.py"
+    )
+    
+    if os.path.isfile(service_path):
+        spec = importlib.util.spec_from_file_location(
+            "cloudinary_service",
+            service_path
+        )
+        service_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(service_module)
+        init_cloudinary = service_module.init_cloudinary
+        upload_media_file = service_module.upload_media_file
+        delete_media_file = service_module.delete_media_file
+        get_media_resources = service_module.get_media_resources
+except (ImportError, AttributeError):
+    service_path = os.path.join(
+        os.path.dirname(__file__),
+        "services",
+        "cloudinary_service.py"
+    )
+
+    if os.path.isfile(service_path):
+        spec = importlib.util.spec_from_file_location(
+            "cloudinary_service",
+            service_path
+        )
+        service_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(service_module)
+        init_cloudinary = service_module.init_cloudinary
+        upload_media_file = service_module.upload_media_file
+        delete_media_file = service_module.delete_media_file
+        get_media_resources = service_module.get_media_resources
 
 
 load_dotenv()

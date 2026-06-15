@@ -1,1 +1,16 @@
+# Sensitive credential keys (CRITICAL)
 .env
+
+# Local database cache
+users_cache.json
+
+# Local development storage media folder
+static/local_media/
+
+# Python environment and runtime artifacts
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+.DS_Store
